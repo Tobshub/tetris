@@ -15,7 +15,6 @@ export default function App() {
   );
 }
 
-
 function GameArea() {
   const [board] = useState(() => new Board());
   const [newBlock, setNewBlock] = useState<Block | undefined>();
@@ -24,8 +23,8 @@ function GameArea() {
   };
   const dropBlock = () => {
     setNewBlock(new OBlock(board.display, 1, 0));
-    console.log(board.display)
-  }
+    console.log(board.display);
+  };
   return (
     <>
       <div
@@ -106,69 +105,31 @@ class Square {
   }
 }
 
-const enum ORIENTATION {
-  VERTICAL,
-  HORIZONTAL,
-  VERTICAL_REVERSE,
-  HORIZONTAL_REVERSE,
-}
-
-type BlockInitProps = {
-  squares: Array<Array<Square>>;
-  height: number;
-  width: number;
-  y: number;
-  x: number;
-};
-
 class Block {
-  squares: Array<Array<Square>>;
+  squares: Array<Array<Square | undefined>>;
   height: number;
   width: number;
   y: number;
   x: number;
   orientation: ORIENTATION;
-  constructor(props: BlockInitProps) {
+  constructor(
+    private readonly display: Board["display"],
+    props: BlockInitProps
+  ) {
     this.orientation = ORIENTATION.HORIZONTAL;
-    this.squares = props.squares;
-    this.height = props.height;
-    this.width = props.width;
+    this.squares = this.build(props.type);
+    this.height = 0;
+    this.width = 0;
     this.x = props.x;
     this.y = props.y;
   }
 
+  build(type: keyof typeof BLOCKSHAPE): Array<Array<Square | undefined>> {
+    return BLOCKSHAPE[type];
+  }
+
   drop() {
     console.error("display is not implement");
-  }
-}
-
-class IBlock extends Block {
-  constructor() {
-    super();
-  }
-}
-class LBlock extends Block {
-  constructor() {
-    super();
-  }
-}
-
-class JBlock extends Block {
-  constructor() {
-    super();
-  }
-}
-class OBlock extends Block {
-  constructor(private readonly display: Board["display"], y: number, x: number) {
-    super({
-      //prettier-ignore
-      squares: [[new Square(), new Square()],[new Square(), new Square()]],
-      height: 2,
-      width: 2,
-      y: y,
-      x: x,
-    });
-    this.render();
   }
 
   render() {
@@ -178,29 +139,40 @@ class OBlock extends Block {
       }
     }
   }
+}
 
-  drop() {
-    for (let y = this.height - this.y - 1; y >= this.y; y++) {
-      for (let x = this.x; x < this.width; x++) {
-        this.display[y + 1][x] = this.display[y][x];
-        this.display[y][x] = [];
-      }
-    }
-    this.y += 1;
-  }
+const BLOCKSHAPE = {
+  IBLOCK: [[new Square(), new Square(), new Square(), new Square()]],
+  LBLOCK: [[new Square(), new Square(), new Square()], [new Square()]],
+  JBLOCK: [[new Square()], [new Square(), new Square(), new Square()]],
+  OBLOCK: [
+    [new Square(), new Square()],
+    [new Square(), new Square()],
+  ],
+  SBLOCK: [
+    [undefined, new Square(), new Square()],
+    [new Square(), new Square(), undefined],
+  ],
+  ZBLOCK: [
+    [new Square(), new Square(), undefined],
+    [undefined, new Square(), new Square()],
+  ],
+  TBLOCK: [
+    [new Square(), new Square(), new Square()],
+    [undefined, new Square(), undefined],
+  ],
+};
+
+const enum ORIENTATION {
+  VERTICAL,
+  HORIZONTAL,
+  VERTICAL_REVERSE,
+  HORIZONTAL_REVERSE,
 }
-class ZBlock extends Block {
-  constructor() {
-    super();
-  }
-}
-class TBlock extends Block {
-  constructor() {
-    super();
-  }
-}
-class SBlock extends Block {
-  constructor() {
-    super();
-  }
-}
+
+type BlockInitProps = {
+  type: keyof typeof BLOCKSHAPE;
+  orientation: ORIENTATION;
+  y: number;
+  x: number;
+};
