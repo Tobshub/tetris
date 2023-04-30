@@ -1,5 +1,13 @@
 import { useState } from "react";
 
+// prettier-ignore
+const BOARD_DISPLAY = [
+  Array(10).fill(undefined), Array(10).fill(undefined), Array(10).fill(undefined), Array(10).fill(undefined), Array(10).fill(undefined), 
+  Array(10).fill(undefined), Array(10).fill(undefined), Array(10).fill(undefined), Array(10).fill(undefined), Array(10).fill(undefined), 
+  Array(10).fill(undefined), Array(10).fill(undefined), Array(10).fill(undefined), Array(10).fill(undefined), Array(10).fill(undefined), 
+  Array(10).fill(undefined), Array(10).fill(undefined), Array(10).fill(undefined), Array(10).fill(undefined), Array(10).fill(undefined),
+];
+
 export default function App() {
   return (
     <div
@@ -15,7 +23,20 @@ export default function App() {
   );
 }
 
+function useForceRerender() {
+  const [_, setState] = useState({ value: 10 });
+
+  function rerenderForcefully() {
+    setState((prev) => {
+      return { ...prev };
+    });
+  }
+
+  return rerenderForcefully;
+}
+
 function GameArea() {
+  const rerender = useForceRerender();
   const [board] = useState(() => new Board());
   const [newBlock, setNewBlock] = useState<Block | undefined>();
   const createBlock = () => {
@@ -23,16 +44,17 @@ function GameArea() {
       new Block(board.display, {
         type: "IBLOCK",
         orientation: ORIENTATION.HORIZONTAL,
-        y: 0,
-        x: 0,
       })
     );
-    console.log(board.display, newBlock);
   };
+
   const dropBlock = () => {
-    // setNewBlock(new OBlock(board.display, 1, 0));
-    console.log(board.display);
+    if (newBlock) {
+      newBlock?.drop();
+      rerender();
+    }
   };
+
   return (
     <>
       <div
@@ -61,44 +83,23 @@ function GameArea() {
                   alignItems: "center",
                 }}
               >
-                {row[0]?.display() ?? "."}
+                {row?.display() ?? "."}
               </li>
             ))}
           </ul>
         ))}
       </div>
       <button onClick={createBlock}>CREATE BLOCK</button>
-      <button onClick={dropBlock}>DROP BLOCK</button>
+      <button onClick={dropBlock}>DROP</button>
     </>
   );
 }
 
 class Board {
-  display: Array<Array<Array<void | Square>>>;
+  display: Array<Array<Square | undefined>>;
   constructor() {
     // prettier-ignore
-    this.display = [
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-      [[],[],[],[],[],[],[],[],[],[]],
-    ];
+    this.display = BOARD_DISPLAY;
   }
 }
 
@@ -125,54 +126,80 @@ class Block {
     props: BlockInitProps
   ) {
     this.orientation = ORIENTATION.HORIZONTAL;
-    this.squares = this.build(props.type);
-    this.height = 0;
-    this.width = 0;
-    this.x = props.x;
-    this.y = props.y;
-  }
-
-  build(type: keyof typeof BLOCKSHAPE): Array<Array<Square | undefined>> {
-    this.height = BLOCKSHAPE[type].length;
-    this.width = BLOCKSHAPE[type][0].length;
-    this.squares = BLOCKSHAPE[type];
+    this.squares = BLOCKSHAPE[props.type];
+    this.height = BLOCKSHAPE[props.type].length;
+    this.width = BLOCKSHAPE[props.type][0].length;
+    this.x = Math.floor(Math.random() * (this.display[0].length - this.width));
+    this.y = 0;
     this.render();
-    return BLOCKSHAPE[type];
   }
 
   drop() {
-    console.error("display is not implement");
+    this.clear();
+    this.y++;
+    this.render();
   }
 
   render() {
-    console.log(this.height, this.width, this.squares);
-    for (let y = this.y; y < this.height; y++) {
-      for (let x = this.x; x < this.width; x++) {
-        this.display[y][x] = [this.squares[y][x]];
-      }
-    }
+    this.squares.forEach((row, index_y) => {
+      row.forEach((square, index_x) => {
+        this.display[index_y + this.y][index_x + this.x] = square;
+      });
+    });
+  }
+
+  clear() {
+    this.squares.forEach((row, index_y) => {
+      row.forEach((_, index_x) => {
+        this.display[index_y + this.y][index_x + this.x] = undefined;
+      });
+    });
   }
 }
 
 const BLOCKSHAPE = {
-  IBLOCK: [[new Square(), new Square(), new Square(), new Square()]],
-  LBLOCK: [[new Square(), new Square(), new Square()], [new Square()]],
-  JBLOCK: [[new Square()], [new Square(), new Square(), new Square()]],
-  OBLOCK: [
-    [new Square(), new Square()],
-    [new Square(), new Square()],
+  IBLOCK: [
+    [new Square(), new Square(), new Square(), new Square()],
+    [undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined],
   ],
-  SBLOCK: [
-    [undefined, new Square(), new Square()],
-    [new Square(), new Square(), undefined],
+  LBLOCK: [
+    [new Square(), new Square(), new Square()],
+    [new Square(), undefined, undefined],
+    [undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined],
+  ],
+  JBLOCK: [
+    [new Square(), undefined, undefined],
+    [new Square(), new Square(), new Square()],
+    [undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined],
+  ],
+  OBLOCK: [
+    [undefined, new Square(), new Square(), undefined],
+    [undefined, new Square(), new Square(), undefined],
+    [undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined],
   ],
   ZBLOCK: [
-    [new Square(), new Square(), undefined],
-    [undefined, new Square(), new Square()],
+    [new Square(), new Square(), undefined, undefined],
+    [undefined, new Square(), new Square(), undefined],
+    [undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined],
+  ],
+  SBLOCK: [
+    [undefined, undefined, new Square(), new Square()],
+    [undefined, new Square(), new Square(), undefined],
+    [undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined],
   ],
   TBLOCK: [
     [new Square(), new Square(), new Square()],
     [undefined, new Square(), undefined],
+    [undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined],
   ],
 };
 
@@ -186,6 +213,4 @@ const enum ORIENTATION {
 type BlockInitProps = {
   type: keyof typeof BLOCKSHAPE;
   orientation: ORIENTATION;
-  y: number;
-  x: number;
 };
