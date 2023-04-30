@@ -53,7 +53,8 @@ function useGameState(
       console.log({ delta, currentBlock: board.currentBlock });
       lastTime = time;
       if (currentBlock) {
-        currentBlock.drop();
+        let canContinue = currentBlock.drop();
+        if (!canContinue) board.currentBlock = undefined;
       } else {
         board.newBlock(forceRender);
       }
@@ -68,7 +69,7 @@ function GameArea() {
   const rerender = useForceRerender();
   const [board] = useState(() => new Board());
 
-  const { update } = useGameState(board, rerender, { gameSpeed: 0.8 });
+  const { update } = useGameState(board, rerender, { gameSpeed: 2 });
 
   useEffect(() => {
     requestAnimationFrame(update);
@@ -108,10 +109,11 @@ function GameArea() {
           </ul>
         ))}
       </div>
-      {/* <button onClick={createBlock}>CREATE BLOCK</button> */}
-      {/* <button onClick={() => newBlock?.drop()}>DOWN</button> */}
-      {/* <button onClick={() => newBlock?.shift("left")}>{"<-"}</button> */}
-      {/* <button onClick={() => newBlock?.shift("right")}>{"->"}</button> */}
+      <button onClick={() => board.currentBlock?.drop()}>DOWN</button>
+      <button onClick={() => board.currentBlock?.shift("left")}>{"<-"}</button>
+      <button onClick={() => board.currentBlock?.shift("right")}>{"->"}</button>
+      <button>ROTATE LEFT</button>
+      <button>ROTATE RIGHT</button>
     </>
   );
 }
@@ -128,7 +130,7 @@ class Board {
   newBlock(forceRender: () => void) {
     this.currentBlock = new Block(
       this.display,
-      { type: chooseRandomType(), orientation: ORIENTATION.HORIZONTAL },
+      { type: chooseRandomType() },
       forceRender
     );
     this.currentBlock?.render();
@@ -235,6 +237,9 @@ class Block {
       });
     });
   }
+
+  rotate(direction: number) {
+  }
 }
 
 class Square {
@@ -309,14 +314,6 @@ const BLOCKSHAPE = {
   ],
 };
 
-const enum ORIENTATION {
-  VERTICAL,
-  HORIZONTAL,
-  VERTICAL_REVERSE,
-  HORIZONTAL_REVERSE,
-}
-
 type BlockInitProps = {
   type: keyof typeof BLOCKSHAPE;
-  orientation: ORIENTATION;
 };
