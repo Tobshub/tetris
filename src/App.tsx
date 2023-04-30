@@ -172,26 +172,24 @@ class Block {
   private checkBeforeRender(offset: { y?: number; x?: number }) {
     let safe = true;
     this.squares.every((row, index_y) => {
-      if (
-        index_y + this.y + (offset.y ?? 0) >= this.display.length ||
-        this.y + (offset.y ?? 0) < 0
-      ) {
-        safe = false;
-        return safe;
-      }
       row.every((square, index_x) => {
-        const box =
-          this.display[index_y + this.y + (offset.y ?? 0)][
-            index_x + this.x + (offset.x ?? 0)
-          ];
-        if (
-          (box &&
-            square &&
-            (!this.squares[index_y + (offset.y ?? 0)]?.at(index_x) ||
-              !this.squares[index_y][index_x + (offset.x ?? 0)])) ||
+        const box = this.display[index_y + this.y + (offset.y ?? 0)]?.at(
+          index_x + this.x + (offset.x ?? 0)
+        );
+        const nextBoxPartOfShape = this.squares[index_y + (offset.y ?? 0)]?.at(
+          index_x + (offset.x ?? 0)
+        );
+        const xAxisOutofBounds =
           index_x + this.x + (offset.x ?? 0) >=
-            this.display[index_y + this.y].length ||
-          this.x + (offset.x ?? 0) < 0
+            this.display[index_y + this.y]?.length ||
+          this.x + (offset.x ?? 0) < 0;
+        const yAxisOutofBounds =
+          index_y + this.y + (offset.y ?? 0) >= this.display.length ||
+          this.y + (offset.y ?? 0) < 0;
+        if (
+          (box && square && !nextBoxPartOfShape) ||
+          xAxisOutofBounds ||
+          (square && yAxisOutofBounds)
         ) {
           safe = false;
         }
