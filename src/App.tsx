@@ -19,10 +19,18 @@ function GameArea() {
   const [board] = useState(() => new Board());
   const [newBlock, setNewBlock] = useState<Block | undefined>();
   const createBlock = () => {
-    setNewBlock(new OBlock(board.display, 0, 0));
+    setNewBlock(
+      new Block(board.display, {
+        type: "IBLOCK",
+        orientation: ORIENTATION.HORIZONTAL,
+        y: 0,
+        x: 0,
+      })
+    );
+    console.log(board.display, newBlock);
   };
   const dropBlock = () => {
-    setNewBlock(new OBlock(board.display, 1, 0));
+    // setNewBlock(new OBlock(board.display, 1, 0));
     console.log(board.display);
   };
   return (
@@ -125,6 +133,10 @@ class Block {
   }
 
   build(type: keyof typeof BLOCKSHAPE): Array<Array<Square | undefined>> {
+    this.height = BLOCKSHAPE[type].length;
+    this.width = BLOCKSHAPE[type][0].length;
+    this.squares = BLOCKSHAPE[type];
+    this.render();
     return BLOCKSHAPE[type];
   }
 
@@ -133,6 +145,7 @@ class Block {
   }
 
   render() {
+    console.log(this.height, this.width, this.squares);
     for (let y = this.y; y < this.height; y++) {
       for (let x = this.x; x < this.width; x++) {
         this.display[y][x] = [this.squares[y][x]];
