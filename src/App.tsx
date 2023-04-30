@@ -40,6 +40,28 @@ function chooseRandomType() {
   return Object.keys(BLOCKSHAPE)[index] as BlockInitProps["type"];
 }
 
+function useGameState(
+  board: Board,
+  currentBlock: Block | undefined,
+  createNewBlock: () => void,
+  options: { gameSpeed: number }
+) {
+  let lastTime = 0;
+  const updateGameSate = (time: number) => {
+    let delta = time - lastTime;
+    if (delta >= 2_000 / options.gameSpeed) {
+      console.log({ delta });
+      lastTime = time;
+      if (currentBlock) {
+        currentBlock.drop();
+      }
+    }
+    requestAnimationFrame(updateGameSate);
+  };
+
+  return updateGameSate;
+}
+
 function GameArea() {
   const rerender = useForceRerender();
   const [board] = useState(() => new Board());
@@ -56,6 +78,12 @@ function GameArea() {
 
   useEffect(() => {
     newBlock?.render();
+  }, [newBlock]);
+
+  const update = useGameState(board, newBlock, createBlock, { gameSpeed: 1.2 });
+
+  useEffect(() => {
+    requestAnimationFrame(update);
   }, [newBlock]);
 
   return (
