@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // prettier-ignore
 const BOARD_DISPLAY = [
@@ -44,7 +44,7 @@ function GameArea() {
   const rerender = useForceRerender();
   const [board] = useState(() => new Board());
   const [newBlock, setNewBlock] = useState<Block | undefined>();
-  const createBlock = async () => {
+  const createBlock = () => {
     setNewBlock(
       new Block(
         board.display,
@@ -53,6 +53,10 @@ function GameArea() {
       )
     );
   };
+
+  useEffect(() => {
+    newBlock?.render();
+  }, [newBlock]);
 
   return (
     <>
@@ -110,71 +114,82 @@ class Block {
   width: number;
   y: number;
   x: number;
+  canMove: boolean;
   constructor(
     private readonly display: Board["display"],
     public props: BlockInitProps,
-    public redraw: () => void
+    public redrawBoard: () => void
   ) {
     this.squares = BLOCKSHAPE[props.type];
     this.height = BLOCKSHAPE[props.type].length;
     this.width = BLOCKSHAPE[props.type][0].length;
     this.x = Math.floor(Math.random() * (this.display[0].length - this.width));
     this.y = 0;
-    this.render();
+    this.canMove = true;
   }
 
   drop() {
-    this.clear();
-    this.y++;
-    const safe = this.render();
-    if (safe) {
-      this.redraw();
-    } else {
-      this.y--;
-      this.render();
+    if (!this.canMove) {
+      return false;
     }
+    const safe = this.checkBeforeRender({ y: 1 });
+    if (safe) {
+      this.clear();
+      this.y++;
+      this.render();
+      return true;
+    }
+    this.canMove = false;
+    return false;
   }
 
   shift(direction: "left" | "right") {
-    this.clear();
-    this.x += direction === "left" ? -1 : 1;
-    const safe = this.render();
+    const safe = this.checkBeforeRender({ x: direction === "left" ? -1 : 1 });
     if (safe) {
-      this.redraw();
-    } else {
-      this.x -= direction === "left" ? -1 : 1;
+      this.clear();
+      this.x += direction === "left" ? -1 : 1;
       this.render();
+      return true;
     }
+    this.canMove = false;
+    return false;
   }
 
   render() {
-    const safe = this.checkBeforeRender();
-    if (!safe) {
-      return false;
-    }
     this.squares.forEach((row, index_y) => {
       row.forEach((square, index_x) => {
-        square?.build(this);
-        this.display[index_y + this.y][index_x + this.x] =
-          square ?? this.display[index_y + this.y][index_x + this.x];
+        if (square) {
+          square.build(this);
+          this.display[index_y + this.y][index_x + this.x] = square;
+        }
       });
     });
-    return true;
+    this.redrawBoard();
   }
 
-  private checkBeforeRender() {
+  private checkBeforeRender(offset: { y?: number; x?: number }) {
     let safe = true;
     this.squares.every((row, index_y) => {
-      if (index_y + this.y >= this.display.length || index_y + this.y < 0) {
+      if (
+        index_y + this.y + (offset.y ?? 0) >= this.display.length ||
+        this.y + (offset.y ?? 0) < 0
+      ) {
         safe = false;
         return safe;
       }
       row.every((square, index_x) => {
-        const box = this.display[index_y + this.y][index_x + this.x];
+        const box =
+          this.display[index_y + this.y + (offset.y ?? 0)][
+            index_x + this.x + (offset.x ?? 0)
+          ];
         if (
-          (box && square) ||
-          index_x + this.x >= this.display[index_y + this.y].length ||
-          index_x + this.x < 0
+          (box &&
+            square &&
+            (!this.squares[index_y + (offset.y ?? 0)]?.at(index_x) ||
+            !this.squares[index_y][index_x + (offset.x ?? 0)])) ||
+          index_x + this.x + (offset.x ?? 0) >=
+            this.display[index_y + this.y].length ||
+          this.x + (offset.x ?? 0) < 0
         ) {
           safe = false;
         }
