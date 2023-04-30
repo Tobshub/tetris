@@ -246,28 +246,39 @@ class Square {
 }
 
 const BLOCKSHAPE = {
-  IBLOCK: [[new Square(), new Square(), new Square(), new Square()]],
+  IBLOCK: [
+    [undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined],
+    [new Square(), new Square(), new Square(), new Square()],
+    [undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined],
+  ],
   LBLOCK: [
+    [undefined, undefined, undefined, undefined],
     [new Square(), new Square(), new Square()],
     [new Square(), undefined, undefined],
   ],
   JBLOCK: [
-    [new Square(), undefined, undefined],
-    [new Square(), new Square(), new Square()],
+    [ undefined, undefined, undefined],
+    [ new Square(), new Square(), new Square()],
+    [ undefined, undefined, new Square()],
   ],
   OBLOCK: [
-    [new Square(), new Square()],
-    [new Square(), new Square()],
+    [ new Square(), new Square()],
+    [ new Square(), new Square()],
   ],
   ZBLOCK: [
+    [ undefined, undefined, undefined],
     [new Square(), new Square(), undefined],
     [undefined, new Square(), new Square()],
   ],
   SBLOCK: [
+    [ undefined, undefined, undefined],
     [undefined, new Square(), new Square()],
     [new Square(), new Square(), undefined],
   ],
   TBLOCK: [
+    [ undefined, undefined, undefined],
     [new Square(), new Square(), new Square()],
     [undefined, new Square(), undefined],
   ],
