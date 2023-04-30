@@ -144,6 +144,9 @@ class Block {
   }
 
   shift(direction: "left" | "right") {
+    if (!this.canMove) {
+      return false;
+    }
     const safe = this.checkBeforeRender({ x: direction === "left" ? -1 : 1 });
     if (safe) {
       this.clear();
