@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 // prettier-ignore
 const BOARD_DISPLAY = [
@@ -45,36 +45,30 @@ function useGameState(
   forceRender: () => void,
   options: { gameSpeed: number }
 ) {
-  const [currentBlock, setCurrentBlock] = useState<Block | undefined>();
-  const createBlock = () =>
-    setCurrentBlock(
-      new Block(
-        board.display,
-        { type: chooseRandomType(), orientation: ORIENTATION.HORIZONTAL },
-        forceRender
-      )
-    );
   let lastTime = 0;
   const updateGameSate = (time: number) => {
     let delta = time - lastTime;
     if (delta >= 1_000 / options.gameSpeed) {
-      console.log({ delta });
+      const currentBlock = board.currentBlock;
+      console.log({ delta, currentBlock: board.currentBlock });
       lastTime = time;
       if (currentBlock) {
         currentBlock.drop();
+      } else {
+        board.newBlock(forceRender);
       }
     }
     requestAnimationFrame(updateGameSate);
   };
 
-  return updateGameSate;
+  return { update: updateGameSate };
 }
 
 function GameArea() {
   const rerender = useForceRerender();
   const [board] = useState(() => new Board());
-  
-  const update = useGameState(board, rerender, { gameSpeed: 0.8 });
+
+  const { update } = useGameState(board, rerender, { gameSpeed: 0.8 });
 
   useEffect(() => {
     requestAnimationFrame(update);
@@ -114,19 +108,30 @@ function GameArea() {
           </ul>
         ))}
       </div>
-      <button onClick={createBlock}>CREATE BLOCK</button>
-      <button onClick={() => newBlock?.drop()}>DOWN</button>
-      <button onClick={() => newBlock?.shift("left")}>{"<-"}</button>
-      <button onClick={() => newBlock?.shift("right")}>{"->"}</button>
+      {/* <button onClick={createBlock}>CREATE BLOCK</button> */}
+      {/* <button onClick={() => newBlock?.drop()}>DOWN</button> */}
+      {/* <button onClick={() => newBlock?.shift("left")}>{"<-"}</button> */}
+      {/* <button onClick={() => newBlock?.shift("right")}>{"->"}</button> */}
     </>
   );
 }
 
 class Board {
   display: Array<Array<Square | undefined>>;
+  currentBlock: Block | undefined;
   constructor() {
     // prettier-ignore
     this.display = BOARD_DISPLAY;
+    this.currentBlock = undefined;
+  }
+
+  newBlock(forceRender: () => void) {
+    this.currentBlock = new Block(
+      this.display,
+      { type: chooseRandomType(), orientation: ORIENTATION.HORIZONTAL },
+      forceRender
+    );
+    this.currentBlock?.render();
   }
 }
 
@@ -267,9 +272,9 @@ class Square {
 
 const BLOCKSHAPE = {
   IBLOCK: [
-    [undefined, undefined, undefined, undefined],
-    [undefined, undefined, undefined, undefined],
     [new Square(), new Square(), new Square(), new Square()],
+    [undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined],
     [undefined, undefined, undefined, undefined],
     [undefined, undefined, undefined, undefined],
   ],
