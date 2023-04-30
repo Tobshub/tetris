@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 // prettier-ignore
 const BOARD_DISPLAY = [
@@ -42,14 +42,22 @@ function chooseRandomType() {
 
 function useGameState(
   board: Board,
-  currentBlock: Block | undefined,
-  createNewBlock: () => void,
+  forceRender: () => void,
   options: { gameSpeed: number }
 ) {
+  const [currentBlock, setCurrentBlock] = useState<Block | undefined>();
+  const createBlock = () =>
+    setCurrentBlock(
+      new Block(
+        board.display,
+        { type: chooseRandomType(), orientation: ORIENTATION.HORIZONTAL },
+        forceRender
+      )
+    );
   let lastTime = 0;
   const updateGameSate = (time: number) => {
     let delta = time - lastTime;
-    if (delta >= 2_000 / options.gameSpeed) {
+    if (delta >= 1_000 / options.gameSpeed) {
       console.log({ delta });
       lastTime = time;
       if (currentBlock) {
@@ -65,26 +73,12 @@ function useGameState(
 function GameArea() {
   const rerender = useForceRerender();
   const [board] = useState(() => new Board());
-  const [newBlock, setNewBlock] = useState<Block | undefined>();
-  const createBlock = () => {
-    setNewBlock(
-      new Block(
-        board.display,
-        { type: chooseRandomType(), orientation: ORIENTATION.HORIZONTAL },
-        rerender
-      )
-    );
-  };
-
-  useEffect(() => {
-    newBlock?.render();
-  }, [newBlock]);
-
-  const update = useGameState(board, newBlock, createBlock, { gameSpeed: 1.2 });
+  
+  const update = useGameState(board, rerender, { gameSpeed: 0.8 });
 
   useEffect(() => {
     requestAnimationFrame(update);
-  }, [newBlock]);
+  }, []);
 
   return (
     <>
