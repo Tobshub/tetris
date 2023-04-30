@@ -24,7 +24,7 @@ export default function App() {
 }
 
 function useForceRerender() {
-  const [_, setState] = useState({ value: 10 });
+  const [, setState] = useState({ value: 10 });
 
   function rerenderForcefully() {
     setState((prev) => {
@@ -35,24 +35,23 @@ function useForceRerender() {
   return rerenderForcefully;
 }
 
+function chooseRandomType() {
+  const index = Math.floor(Math.random() * Object.keys(BLOCKSHAPE).length);
+  return Object.keys(BLOCKSHAPE)[index] as BlockInitProps["type"];
+}
+
 function GameArea() {
   const rerender = useForceRerender();
   const [board] = useState(() => new Board());
   const [newBlock, setNewBlock] = useState<Block | undefined>();
-  const createBlock = () => {
+  const createBlock = async () => {
     setNewBlock(
-      new Block(board.display, {
-        type: "IBLOCK",
-        orientation: ORIENTATION.HORIZONTAL,
-      })
+      new Block(
+        board.display,
+        { type: chooseRandomType(), orientation: ORIENTATION.HORIZONTAL },
+        rerender
+      )
     );
-  };
-
-  const dropBlock = () => {
-    if (newBlock) {
-      newBlock?.drop();
-      rerender();
-    }
   };
 
   return (
@@ -90,7 +89,9 @@ function GameArea() {
         ))}
       </div>
       <button onClick={createBlock}>CREATE BLOCK</button>
-      <button onClick={dropBlock}>DROP</button>
+      <button onClick={() => newBlock?.drop()}>DOWN</button>
+      <button onClick={() => newBlock?.shift("left")}>{"<-"}</button>
+      <button onClick={() => newBlock?.shift("right")}>{"->"}</button>
     </>
   );
 }
@@ -103,29 +104,17 @@ class Board {
   }
 }
 
-class Square {
-  constructor() {}
-  display() {
-    return (
-      <div
-        style={{ width: "100%", height: "100%", backgroundColor: "red" }}
-      ></div>
-    );
-  }
-}
-
 class Block {
   squares: Array<Array<Square | undefined>>;
   height: number;
   width: number;
   y: number;
   x: number;
-  orientation: ORIENTATION;
   constructor(
     private readonly display: Board["display"],
-    props: BlockInitProps
+    public props: BlockInitProps,
+    public redraw: () => void
   ) {
-    this.orientation = ORIENTATION.HORIZONTAL;
     this.squares = BLOCKSHAPE[props.type];
     this.height = BLOCKSHAPE[props.type].length;
     this.width = BLOCKSHAPE[props.type][0].length;
@@ -137,15 +126,63 @@ class Block {
   drop() {
     this.clear();
     this.y++;
-    this.render();
+    const safe = this.render();
+    if (safe) {
+      this.redraw();
+    } else {
+      this.y--;
+      this.render();
+    }
+  }
+
+  shift(direction: "left" | "right") {
+    this.clear();
+    this.x += direction === "left" ? -1 : 1;
+    const safe = this.render();
+    if (safe) {
+      this.redraw();
+    } else {
+      this.x -= direction === "left" ? -1 : 1;
+      this.render();
+    }
   }
 
   render() {
+    const safe = this.checkBeforeRender();
+    if (!safe) {
+      return false;
+    }
     this.squares.forEach((row, index_y) => {
       row.forEach((square, index_x) => {
-        this.display[index_y + this.y][index_x + this.x] = square;
+        square?.build(this);
+        this.display[index_y + this.y][index_x + this.x] =
+          square ?? this.display[index_y + this.y][index_x + this.x];
       });
     });
+    return true;
+  }
+
+  private checkBeforeRender() {
+    let safe = true;
+    this.squares.every((row, index_y) => {
+      if (index_y + this.y >= this.display.length || index_y + this.y < 0) {
+        safe = false;
+        return safe;
+      }
+      row.every((square, index_x) => {
+        const box = this.display[index_y + this.y][index_x + this.x];
+        if (
+          (box && square) ||
+          index_x + this.x >= this.display[index_y + this.y].length ||
+          index_x + this.x < 0
+        ) {
+          safe = false;
+        }
+        return safe;
+      });
+      return safe;
+    });
+    return safe;
   }
 
   clear() {
@@ -157,49 +194,64 @@ class Block {
   }
 }
 
+class Square {
+  parent: Block | undefined;
+  constructor() {
+    this.parent = undefined;
+  }
+  display() {
+    const type = this.parent?.props.type;
+    const color =
+      type === "IBLOCK"
+        ? "red"
+        : type === "JBLOCK"
+        ? "blue"
+        : type === "LBLOCK"
+        ? "orange"
+        : type === "OBLOCK"
+        ? "yellow"
+        : type === "SBLOCK"
+        ? "pink"
+        : type === "TBLOCK"
+        ? "green"
+        : "purple";
+    return (
+      <div
+        style={{ width: "100%", height: "100%", backgroundColor: color }}
+      ></div>
+    );
+  }
+
+  build(parent: Block) {
+    this.parent = parent;
+  }
+}
+
 const BLOCKSHAPE = {
-  IBLOCK: [
-    [new Square(), new Square(), new Square(), new Square()],
-    [undefined, undefined, undefined, undefined],
-    [undefined, undefined, undefined, undefined],
-    [undefined, undefined, undefined, undefined],
-    [undefined, undefined, undefined, undefined],
-  ],
+  IBLOCK: [[new Square(), new Square(), new Square(), new Square()]],
   LBLOCK: [
     [new Square(), new Square(), new Square()],
     [new Square(), undefined, undefined],
-    [undefined, undefined, undefined, undefined],
-    [undefined, undefined, undefined, undefined],
   ],
   JBLOCK: [
     [new Square(), undefined, undefined],
     [new Square(), new Square(), new Square()],
-    [undefined, undefined, undefined, undefined],
-    [undefined, undefined, undefined, undefined],
   ],
   OBLOCK: [
-    [undefined, new Square(), new Square(), undefined],
-    [undefined, new Square(), new Square(), undefined],
-    [undefined, undefined, undefined, undefined],
-    [undefined, undefined, undefined, undefined],
+    [new Square(), new Square()],
+    [new Square(), new Square()],
   ],
   ZBLOCK: [
-    [new Square(), new Square(), undefined, undefined],
-    [undefined, new Square(), new Square(), undefined],
-    [undefined, undefined, undefined, undefined],
-    [undefined, undefined, undefined, undefined],
+    [new Square(), new Square(), undefined],
+    [undefined, new Square(), new Square()],
   ],
   SBLOCK: [
-    [undefined, undefined, new Square(), new Square()],
-    [undefined, new Square(), new Square(), undefined],
-    [undefined, undefined, undefined, undefined],
-    [undefined, undefined, undefined, undefined],
+    [undefined, new Square(), new Square()],
+    [new Square(), new Square(), undefined],
   ],
   TBLOCK: [
     [new Square(), new Square(), new Square()],
     [undefined, new Square(), undefined],
-    [undefined, undefined, undefined, undefined],
-    [undefined, undefined, undefined, undefined],
   ],
 };
 
