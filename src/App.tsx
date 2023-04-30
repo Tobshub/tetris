@@ -151,7 +151,6 @@ class Block {
       this.render();
       return true;
     }
-    this.canMove = false;
     return false;
   }
 
@@ -186,7 +185,7 @@ class Block {
           (box &&
             square &&
             (!this.squares[index_y + (offset.y ?? 0)]?.at(index_x) ||
-            !this.squares[index_y][index_x + (offset.x ?? 0)])) ||
+              !this.squares[index_y][index_x + (offset.x ?? 0)])) ||
           index_x + this.x + (offset.x ?? 0) >=
             this.display[index_y + this.y].length ||
           this.x + (offset.x ?? 0) < 0
@@ -202,7 +201,8 @@ class Block {
 
   clear() {
     this.squares.forEach((row, index_y) => {
-      row.forEach((_, index_x) => {
+      row.forEach((square, index_x) => {
+        if (!square) return;
         this.display[index_y + this.y][index_x + this.x] = undefined;
       });
     });
