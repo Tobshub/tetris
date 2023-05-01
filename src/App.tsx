@@ -175,19 +175,17 @@ class Board {
 }
 
 class Block {
-  squares: Array<Array<Square | undefined>>;
-  height: number;
-  width: number;
-  y: number;
-  x: number;
-  canMove: boolean;
+  private squares: Array<Array<Square | undefined>>;
+  private width: number;
+  private y: number;
+  private x: number;
+  private canMove: boolean;
   constructor(
     private readonly display: Board["display"],
-    public props: BlockInitProps,
-    public redrawBoard: () => void
+    public readonly props: BlockInitProps,
+    private readonly redrawBoard: () => void
   ) {
     this.squares = BLOCKSHAPE[props.type];
-    this.height = BLOCKSHAPE[props.type].length;
     this.width = BLOCKSHAPE[props.type][0].length;
     this.x = Math.floor(Math.random() * (this.display[0].length - this.width + 1));
     this.y = 0;
