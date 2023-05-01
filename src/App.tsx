@@ -90,6 +90,7 @@ function GameArea() {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(10, 1fr)",
+              gridAutoRows: "auto",
               listStyle: "none",
             }}
           >
