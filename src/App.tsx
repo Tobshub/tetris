@@ -74,6 +74,44 @@ function GameArea() {
     requestAnimationFrame(update);
   }, []);
 
+  const handleKeyboardInput = (e: KeyboardEvent) => {
+    switch (e.key) {
+      case "ArrowLeft": {
+        board.currentBlock?.shift("left");
+        break;
+      }
+      case "ArrowRight": {
+        board.currentBlock?.shift("right");
+        break;
+      }
+      case "ArrowDown": {
+        board.currentBlock?.drop();
+        break;
+      }
+      case "a":
+      case "A": {
+        board.currentBlock?.rotate(-1);
+        break;
+      }
+      case "d":
+      case "D": {
+        board.currentBlock?.rotate(1);
+        break;
+      }
+      default: break;
+    }
+  }
+
+  useEffect(() => {
+    const handleKeyboardInputOnFrame = (e: KeyboardEvent) => {
+      requestAnimationFrame(() => handleKeyboardInput(e));
+    } 
+    addEventListener("keydown", handleKeyboardInputOnFrame)
+    return () => {
+      removeEventListener("keydown", handleKeyboardInputOnFrame);
+    }
+  }, [])
+
   return (
     <>
       <div
