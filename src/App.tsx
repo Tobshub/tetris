@@ -265,7 +265,7 @@ class Block {
     return safe;
   }
 
-  clear() {
+  private clear() {
     this.squares.forEach((row, index_y) => {
       row.forEach((square, index_x) => {
         if (!square) return;
