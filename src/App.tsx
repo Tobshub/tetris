@@ -254,7 +254,6 @@ class Block {
     this.squares = rotated;
     let safe = this.checkBeforeRender({});
     if (safe) {
-      console.log({shape: this.squares})
       this.render();
     } else {
       this.rotate(direction * -1);
