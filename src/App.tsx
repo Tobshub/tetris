@@ -160,7 +160,6 @@ class Board {
   display: Array<Array<Square | undefined>>;
   currentBlock: Block | undefined;
   constructor() {
-    // prettier-ignore
     this.display = BOARD_DISPLAY;
     this.currentBlock = undefined;
   }
