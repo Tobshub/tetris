@@ -78,7 +78,7 @@ function GameArea() {
     <>
       <div
         style={{
-          width: "min(300px, 100%)",
+          width: "min(400px, 100%)",
           borderColor: "black",
           borderInline: "1px solid",
           borderBottom: "1px solid",
