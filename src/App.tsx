@@ -112,8 +112,8 @@ function GameArea() {
       <button onClick={() => board.currentBlock?.drop()}>DOWN</button>
       <button onClick={() => board.currentBlock?.shift("left")}>{"<-"}</button>
       <button onClick={() => board.currentBlock?.shift("right")}>{"->"}</button>
-      <button>ROTATE LEFT</button>
-      <button>ROTATE RIGHT</button>
+      <button onClick={() => board.currentBlock?.rotate(-1)}>ROTATE LEFT</button>
+      <button onClick={() => board.currentBlock?.rotate(1)}>ROTATE RIGHT</button>
     </>
   );
 }
@@ -239,6 +239,24 @@ class Block {
   }
 
   rotate(direction: number) {
+    let rotated: Block["squares"];
+    if (direction > 0) {
+      rotated = this.squares[0].map((_, index) =>
+        this.squares.map((row) => row[index]).reverse()
+      );
+    } else {
+      rotated = this.squares[0].map((_, index) =>
+        this.squares.map((row) => row[row.length - 1 - index])
+      );
+    }
+    this.squares = rotated;
+    let safe = this.checkBeforeRender({y: 1});
+    if (safe) {
+      this.clear()
+      this.render();
+    } else {
+      this.rotate(direction * -1);
+    }
   }
 }
 
@@ -277,18 +295,20 @@ class Square {
 
 const BLOCKSHAPE = {
   IBLOCK: [
+    [undefined, undefined, undefined, undefined],
+    [undefined, undefined, undefined, undefined],
     [new Square(), new Square(), new Square(), new Square()],
-    [undefined, undefined, undefined, undefined],
-    [undefined, undefined, undefined, undefined],
     [undefined, undefined, undefined, undefined],
     [undefined, undefined, undefined, undefined],
   ],
   LBLOCK: [
+    [undefined, undefined, undefined, undefined],
     [new Square(), new Square(), new Square()],
     [new Square(), undefined, undefined],
     [undefined, undefined, undefined, undefined],
   ],
   JBLOCK: [
+    [undefined, undefined, undefined],
     [new Square(), new Square(), new Square()],
     [undefined, undefined, new Square()],
     [undefined, undefined, undefined],
@@ -298,16 +318,19 @@ const BLOCKSHAPE = {
     [new Square(), new Square()],
   ],
   ZBLOCK: [
+    [undefined, undefined, undefined],
     [new Square(), new Square(), undefined],
     [undefined, new Square(), new Square()],
     [undefined, undefined, undefined],
   ],
   SBLOCK: [
+    [undefined, undefined, undefined],
     [undefined, new Square(), new Square()],
     [new Square(), new Square(), undefined],
     [undefined, undefined, undefined],
   ],
   TBLOCK: [
+    [undefined, undefined, undefined],
     [new Square(), new Square(), new Square()],
     [undefined, new Square(), undefined],
     [undefined, undefined, undefined],
