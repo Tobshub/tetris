@@ -216,8 +216,7 @@ class Block {
           this.y + (offset.y ?? 0) < 0;
         if (
           (box && square && !nextBoxPartOfShape) ||
-          xAxisOutofBounds ||
-          (square && yAxisOutofBounds)
+          (square && (yAxisOutofBounds || xAxisOutofBounds))
         ) {
           safe = false;
         }
