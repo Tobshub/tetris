@@ -1,14 +1,22 @@
-import { Block } from "./block";
+import { type Block } from "./block";
 
 export type BLOCKTYPE = keyof typeof BLOCKSHAPE;
 
 export class Square {
-  parent: Block | undefined;
+  color: string;
   constructor() {
-    this.parent = undefined;
+    this.color = "black";
   }
   display() {
-    const type = this.parent?.props.type;
+    return (
+      <div
+        style={{ width: "100%", height: "100%", backgroundColor: this.color }}
+      ></div>
+    );
+  }
+
+  build(parent: Block) {
+    const type = parent.props.type;
     const color =
       type === "IBLOCK"
         ? "red"
@@ -23,15 +31,7 @@ export class Square {
         : type === "TBLOCK"
         ? "green"
         : "purple";
-    return (
-      <div
-        style={{ width: "100%", height: "100%", backgroundColor: color }}
-      ></div>
-    );
-  }
-
-  build(parent: Block) {
-    this.parent = parent;
+    this.color = color;
   }
 }
 
