@@ -1,5 +1,5 @@
 import { BLOCKSHAPE, BLOCKSTYPES } from "./block-shapes";
-import { Board } from "./App";
+import { type Board } from "./App";
 
 export class Block {
   private squares: Array<Array<Square | undefined>>;
