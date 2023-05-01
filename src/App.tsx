@@ -151,7 +151,7 @@ class Block {
     this.squares = BLOCKSHAPE[props.type];
     this.height = BLOCKSHAPE[props.type].length;
     this.width = BLOCKSHAPE[props.type][0].length;
-    this.x = Math.floor(Math.random() * (this.display[0].length - this.width));
+    this.x = Math.floor(Math.random() * (this.display[0].length - this.width + 1));
     this.y = 0;
     this.canMove = true;
   }
