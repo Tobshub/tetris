@@ -98,19 +98,20 @@ function GameArea() {
         board.currentBlock?.rotate(1);
         break;
       }
-      default: break;
+      default:
+        break;
     }
-  }
+  };
 
   useEffect(() => {
     const handleKeyboardInputOnFrame = (e: KeyboardEvent) => {
       requestAnimationFrame(() => handleKeyboardInput(e));
-    } 
-    addEventListener("keydown", handleKeyboardInputOnFrame)
+    };
+    addEventListener("keydown", handleKeyboardInputOnFrame);
     return () => {
       removeEventListener("keydown", handleKeyboardInputOnFrame);
-    }
-  }, [])
+    };
+  }, []);
 
   return (
     <>
@@ -150,8 +151,12 @@ function GameArea() {
       <button onClick={() => board.currentBlock?.drop()}>DOWN</button>
       <button onClick={() => board.currentBlock?.shift("left")}>{"<-"}</button>
       <button onClick={() => board.currentBlock?.shift("right")}>{"->"}</button>
-      <button onClick={() => board.currentBlock?.rotate(-1)}>ROTATE LEFT</button>
-      <button onClick={() => board.currentBlock?.rotate(1)}>ROTATE RIGHT</button>
+      <button onClick={() => board.currentBlock?.rotate(-1)}>
+        ROTATE LEFT
+      </button>
+      <button onClick={() => board.currentBlock?.rotate(1)}>
+        ROTATE RIGHT
+      </button>
     </>
   );
 }
@@ -187,7 +192,9 @@ class Block {
   ) {
     this.squares = BLOCKSHAPE[props.type];
     this.width = BLOCKSHAPE[props.type][0].length;
-    this.x = Math.floor(Math.random() * (this.display[0].length - this.width + 1));
+    this.x = Math.floor(
+      Math.random() * (this.display[0].length - this.width + 1)
+    );
     this.y = 0;
     this.canMove = true;
   }
