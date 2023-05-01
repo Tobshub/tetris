@@ -7,11 +7,14 @@ export default function App() {
     <div
       style={{
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
+        gap: ".80rem",
         height: "100%",
       }}
     >
+      <small>Arrows to move, A and D for rotations</small>
       <GameArea />
     </div>
   );
@@ -28,7 +31,6 @@ function useForceRerender() {
 
   return rerenderForcefully;
 }
-
 
 function useGameState(
   board: Board,
@@ -138,15 +140,21 @@ function GameArea() {
           </ul>
         ))}
       </div>
-      <button onClick={() => board.currentBlock?.drop()}>DOWN</button>
-      <button onClick={() => board.currentBlock?.shift("left")}>{"<-"}</button>
-      <button onClick={() => board.currentBlock?.shift("right")}>{"->"}</button>
-      <button onClick={() => board.currentBlock?.rotate(-1)}>
-        ROTATE LEFT
-      </button>
-      <button onClick={() => board.currentBlock?.rotate(1)}>
-        ROTATE RIGHT
-      </button>
+      <div style={{ display: "flex", gap: ".5rem" }}>
+        <button onClick={() => board.currentBlock?.drop()}>DOWN</button>
+        <button onClick={() => board.currentBlock?.shift("left")}>
+          {"<-"}
+        </button>
+        <button onClick={() => board.currentBlock?.shift("right")}>
+          {"->"}
+        </button>
+        <button onClick={() => board.currentBlock?.rotate(-1)}>
+          ROTATE LEFT
+        </button>
+        <button onClick={() => board.currentBlock?.rotate(1)}>
+          ROTATE RIGHT
+        </button>
+      </div>
     </>
   );
 }

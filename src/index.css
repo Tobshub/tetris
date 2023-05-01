@@ -28,3 +28,7 @@ body,
   height: 100vh;
   height: 100dvh;
 }
+
+button {
+  font-size: 1.2rem;
+}
