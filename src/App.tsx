@@ -238,6 +238,10 @@ class Block {
   }
 
   rotate(direction: number) {
+    if (!this.canMove) {
+      return false;
+    }
+    this.clear();
     let rotated: Block["squares"];
     if (direction > 0) {
       rotated = this.squares[0].map((_, index) =>
@@ -249,12 +253,13 @@ class Block {
       );
     }
     this.squares = rotated;
-    let safe = this.checkBeforeRender({y: 1});
+    let safe = this.checkBeforeRender({});
     if (safe) {
-      this.clear()
+      console.log({shape: this.squares})
       this.render();
     } else {
       this.rotate(direction * -1);
+      this.render();
     }
   }
 }
