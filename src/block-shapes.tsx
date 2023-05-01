@@ -1,6 +1,39 @@
-import { Square } from "./block";
+import { Block } from "./block";
 
-export type BLOCKSTYPES = keyof typeof BLOCKSHAPE;
+export type BLOCKTYPE = keyof typeof BLOCKSHAPE;
+
+export class Square {
+  parent: Block | undefined;
+  constructor() {
+    this.parent = undefined;
+  }
+  display() {
+    const type = this.parent?.props.type;
+    const color =
+      type === "IBLOCK"
+        ? "red"
+        : type === "JBLOCK"
+        ? "blue"
+        : type === "LBLOCK"
+        ? "orange"
+        : type === "OBLOCK"
+        ? "yellow"
+        : type === "SBLOCK"
+        ? "pink"
+        : type === "TBLOCK"
+        ? "green"
+        : "purple";
+    return (
+      <div
+        style={{ width: "100%", height: "100%", backgroundColor: color }}
+      ></div>
+    );
+  }
+
+  build(parent: Block) {
+    this.parent = parent;
+  }
+}
 
 export const BLOCKSHAPE = {
   IBLOCK: [
@@ -45,3 +78,8 @@ export const BLOCKSHAPE = {
     [undefined, undefined, undefined],
   ],
 };
+
+export function chooseRandomBlockType() {
+  const index = Math.floor(Math.random() * Object.keys(BLOCKSHAPE).length);
+  return Object.keys(BLOCKSHAPE)[index] as BLOCKTYPE;
+}

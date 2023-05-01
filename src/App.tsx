@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import {Block, Square} from "./block";
-import { BLOCKSHAPE, BLOCKSTYPES } from "./block-shapes";
+import { Block } from "./block";
+import { type Square, chooseRandomBlockType } from "./block-shapes";
 
 export default function App() {
   return (
@@ -29,10 +29,6 @@ function useForceRerender() {
   return rerenderForcefully;
 }
 
-function chooseRandomType() {
-  const index = Math.floor(Math.random() * Object.keys(BLOCKSHAPE).length);
-  return Object.keys(BLOCKSHAPE)[index] as BLOCKSTYPES;
-}
 
 function useGameState(
   board: Board,
@@ -166,7 +162,7 @@ export class Board {
   newBlock(forceRender: () => void) {
     this.currentBlock = new Block(
       this.display,
-      { type: "IBLOCK" }, // type should be `chooseRandomType()` but set to IBLOCK for testing purposes
+      { type: chooseRandomBlockType() },
       forceRender
     );
     this.currentBlock?.render();

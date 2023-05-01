@@ -1,5 +1,6 @@
-import { BLOCKSHAPE, BLOCKSTYPES } from "./block-shapes";
+import { type Square, BLOCKSHAPE, type BLOCKTYPE } from "./block-shapes";
 import { type Board } from "./App";
+
 
 export class Block {
   private squares: Array<Array<Square | undefined>>;
@@ -9,7 +10,7 @@ export class Block {
   private canMove: boolean;
   constructor(
     private readonly display: Board["display"],
-    public readonly props: { type: BLOCKSTYPES },
+    public readonly props: { type: BLOCKTYPE },
     private readonly redrawBoard: () => void
   ) {
     this.squares = BLOCKSHAPE[props.type];
@@ -124,38 +125,5 @@ export class Block {
       this.rotate(direction * -1);
       this.render();
     }
-  }
-}
-
-export class Square {
-  parent: Block | undefined;
-  constructor() {
-    this.parent = undefined;
-  }
-  display() {
-    const type = this.parent?.props.type;
-    const color =
-      type === "IBLOCK"
-        ? "red"
-        : type === "JBLOCK"
-        ? "blue"
-        : type === "LBLOCK"
-        ? "orange"
-        : type === "OBLOCK"
-        ? "yellow"
-        : type === "SBLOCK"
-        ? "pink"
-        : type === "TBLOCK"
-        ? "green"
-        : "purple";
-    return (
-      <div
-        style={{ width: "100%", height: "100%", backgroundColor: color }}
-      ></div>
-    );
-  }
-
-  build(parent: Block) {
-    this.parent = parent;
   }
 }
