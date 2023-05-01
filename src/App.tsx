@@ -50,7 +50,6 @@ function useGameState(
     let delta = time - lastTime;
     if (delta >= 1_000 / options.gameSpeed) {
       const currentBlock = board.currentBlock;
-      console.log({ delta, currentBlock: board.currentBlock });
       lastTime = time;
       if (currentBlock) {
         let canContinue = currentBlock.drop();
