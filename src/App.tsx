@@ -253,7 +253,7 @@ class Block {
         const xAxisOutofBounds =
           index_x + this.x + (offset.x ?? 0) >=
             this.display[index_y + this.y]?.length ||
-          this.x + (offset.x ?? 0) < 0;
+          index_x + this.x + (offset.x ?? 0) < 0;
         const yAxisOutofBounds =
           index_y + this.y + (offset.y ?? 0) >= this.display.length ||
           this.y + (offset.y ?? 0) < 0;
