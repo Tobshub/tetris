@@ -34,7 +34,6 @@ function useForceRerender() {
 
 function useGameState(
   board: Board,
-  forceRender: () => void,
   options: { gameSpeed: number }
 ) {
   let lastTime = 0;
@@ -47,7 +46,7 @@ function useGameState(
         let canContinue = currentBlock.drop();
         if (!canContinue) board.currentBlock = undefined;
       } else {
-        board.newBlock(forceRender);
+        board.newBlock();
       }
     }
     requestAnimationFrame(updateGameSate);
@@ -58,9 +57,9 @@ function useGameState(
 
 function GameArea() {
   const rerender = useForceRerender();
-  const [board] = useState(() => new Board());
+  const [board] = useState(() => new Board(rerender));
 
-  const { update } = useGameState(board, rerender, { gameSpeed: 2 });
+  const { update } = useGameState(board, { gameSpeed: 2 });
 
   useEffect(() => {
     requestAnimationFrame(update);
@@ -162,18 +161,31 @@ function GameArea() {
 export class Board {
   display: Array<Array<Square | undefined>>;
   currentBlock: Block | undefined;
-  constructor() {
+  constructor(private readonly forceRender: () => void) {
     this.display = BOARD_DISPLAY;
     this.currentBlock = undefined;
   }
 
-  newBlock(forceRender: () => void) {
+  newBlock() {
     this.currentBlock = new Block(
       this.display,
       { type: chooseRandomBlockType() },
-      forceRender
     );
     this.currentBlock?.render();
+    this.forceRender();
+  }
+
+  clearFilledRows() {
+    for (let i = 0; i < this.display.length; i++) {
+      let filled = this.display[i].every(col => !!col);
+      if (filled) {
+        this.display
+      }
+    }
+  }
+
+  private moveRowsDown(start: number) {
+    for (let i = start; i >= 0; ){}
   }
 }
 

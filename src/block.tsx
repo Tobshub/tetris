@@ -11,7 +11,6 @@ export class Block {
   constructor(
     private readonly display: Board["display"],
     public readonly props: { type: BLOCKTYPE },
-    private readonly redrawBoard: () => void
   ) {
     this.squares = BLOCKSHAPE[props.type];
     this.width = BLOCKSHAPE[props.type][0].length;
@@ -60,7 +59,6 @@ export class Block {
         }
       });
     });
-    this.redrawBoard();
   }
 
   private checkBeforeRender(offset: { y?: number; x?: number }) {
