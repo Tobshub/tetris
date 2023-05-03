@@ -151,11 +151,11 @@ export class Board {
 function handleKeyboardInput(e: KeyboardEvent, board: Board) {
   switch (e.key) {
     case "ArrowLeft": {
-      board.currentBlock?.shift("left");
+      board.currentBlock?.shift(-1);
       break;
     }
     case "ArrowRight": {
-      board.currentBlock?.shift("right");
+      board.currentBlock?.shift(1);
       break;
     }
     case "ArrowDown": {

@@ -37,14 +37,15 @@ export class Block {
     return false;
   }
 
-  shift(direction: "left" | "right") {
+  shift(direction: number) {
     if (!this.canMove) {
       return false;
     }
-    const safe = this.checkBeforeRender({ x: direction === "left" ? -1 : 1 });
+    const move = direction < 0 ? -1 : 1;
+    const safe = this.checkBeforeRender({ x: move });
     if (safe) {
       this.clear();
-      this.x += direction === "left" ? -1 : 1;
+      this.x += move;
       this.render();
       return true;
     }
