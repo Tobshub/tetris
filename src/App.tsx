@@ -28,6 +28,7 @@ function useGameState(board: Board, options: { gameSpeed: number }) {
       const currentBlock = board.currentBlock;
       lastTime = time;
       if (currentBlock) {
+        // why do filled rows disappear????
         let canContinue = currentBlock.drop();
         if (!canContinue) board.currentBlock = undefined;
       } else {
@@ -49,7 +50,7 @@ function GameArea() {
     board.forceRender = () => setDisplay(() => [...board.display]);
   }, []);
 
-  const { update } = useGameState(board, { gameSpeed: 8 });
+  const { update } = useGameState(board, { gameSpeed: 4 });
 
   useEffect(() => {
     requestAnimationFrame(update);
@@ -127,7 +128,7 @@ export class Board {
 
   newBlock() {
     this.currentBlock = new Block(this, {
-      type: "IBLOCK", // chooseRandomBlockType(),
+      type: chooseRandomBlockType(), // change to "IBLOCK" or "OBLOCK" to easily test clearing filled rows,
     });
     this.currentBlock?.render();
   }
