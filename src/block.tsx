@@ -1,19 +1,20 @@
 import { type Square, BLOCKSHAPE, type BLOCKTYPE } from "./block-shapes";
 import { type Board } from "./App";
 
-
 export class Block {
   private squares: Array<Array<Square | undefined>>;
-  private width: number;
+  private readonly width: number;
   private y: number;
   private x: number;
   private canMove: boolean;
+  private readonly display: Board["display"];
   constructor(
-    private readonly display: Board["display"],
-    public readonly props: { type: BLOCKTYPE },
+    public readonly board: Board,
+    public readonly props: { type: BLOCKTYPE }
   ) {
     this.squares = BLOCKSHAPE[props.type];
     this.width = BLOCKSHAPE[props.type][0].length;
+    this.display = this.board.display;
     this.x = Math.floor(
       Math.random() * (this.display[0].length - this.width + 1)
     );
@@ -53,12 +54,12 @@ export class Block {
   render() {
     this.squares.forEach((row, index_y) => {
       row.forEach((square, index_x) => {
-        if (square) {
-          square.build(this);
-          this.display[index_y + this.y][index_x + this.x] = square;
-        }
+        if (!square) return;
+        square.build(this);
+        this.display[index_y + this.y][index_x + this.x] = square;
       });
     });
+    this.board.forceRender();
   }
 
   private checkBeforeRender(offset: { y?: number; x?: number }) {
