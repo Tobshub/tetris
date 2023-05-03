@@ -136,9 +136,9 @@ export class Board {
     for (let i = 0; i < this.display.length; i++) {
       let filled = this.display[i].every((col) => !!col);
       if (filled) {
-        console.log({ i, filled });
-        this.display.filter((_, index) => index !== i);
+        this.display = this.display.filter((_, index) => index !== i);
         this.display.unshift(Array(10).fill(undefined));
+        this.forceRender();
       }
     }
   }
