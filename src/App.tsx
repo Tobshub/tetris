@@ -102,12 +102,8 @@ function GameArea() {
       </div>
       <div style={{ display: "flex", gap: ".5rem" }}>
         <button onClick={() => board.currentBlock?.drop()}>DOWN</button>
-        <button onClick={() => board.currentBlock?.shift("left")}>
-          {"<-"}
-        </button>
-        <button onClick={() => board.currentBlock?.shift("right")}>
-          {"->"}
-        </button>
+        <button onClick={() => board.currentBlock?.shift(-1)}>{"<-"}</button>
+        <button onClick={() => board.currentBlock?.shift(1)}>{"->"}</button>
         <button onClick={() => board.currentBlock?.rotate(-1)}>
           ROTATE LEFT
         </button>
