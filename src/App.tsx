@@ -20,22 +20,7 @@ export default function App() {
   );
 }
 
-function useForceRerender() {
-  const [, setState] = useState({ value: 10 });
-
-  function rerenderForcefully() {
-    setState((prev) => {
-      return { ...prev };
-    });
-  }
-
-  return rerenderForcefully;
-}
-
-function useGameState(
-  board: Board,
-  options: { gameSpeed: number }
-) {
+function useGameState(board: Board, options: { gameSpeed: number }) {
   let lastTime = 0;
   const updateGameSate = (time: number) => {
     let delta = time - lastTime;
@@ -46,6 +31,7 @@ function useGameState(
         let canContinue = currentBlock.drop();
         if (!canContinue) board.currentBlock = undefined;
       } else {
+        board.clearFilledRows();
         board.newBlock();
       }
     }
@@ -56,10 +42,14 @@ function useGameState(
 }
 
 function GameArea() {
-  const rerender = useForceRerender();
-  const [board] = useState(() => new Board(rerender));
+  const board = new Board();
+  const [display, setDisplay] = useState(board.display);
 
-  const { update } = useGameState(board, { gameSpeed: 2 });
+  useEffect(() => {
+    board.forceRender = () => setDisplay((state) => [...state]);
+  }, []);
+
+  const { update } = useGameState(board, { gameSpeed: 8 });
 
   useEffect(() => {
     requestAnimationFrame(update);
@@ -114,7 +104,7 @@ function GameArea() {
           borderBottom: "1px solid",
         }}
       >
-        {board.display.map((col, index) => (
+        {display.map((col, index) => (
           <ul
             key={index}
             style={{
@@ -161,31 +151,29 @@ function GameArea() {
 export class Board {
   display: Array<Array<Square | undefined>>;
   currentBlock: Block | undefined;
-  constructor(private readonly forceRender: () => void) {
+  forceRender: () => void;
+  constructor() {
     this.display = BOARD_DISPLAY;
     this.currentBlock = undefined;
+    this.forceRender = () => {};
   }
 
   newBlock() {
-    this.currentBlock = new Block(
-      this.display,
-      { type: chooseRandomBlockType() },
-    );
+    this.currentBlock = new Block(this, {
+      type: "IBLOCK", // chooseRandomBlockType(),
+    });
     this.currentBlock?.render();
-    this.forceRender();
   }
 
   clearFilledRows() {
     for (let i = 0; i < this.display.length; i++) {
-      let filled = this.display[i].every(col => !!col);
+      let filled = this.display[i].every((col) => !!col);
       if (filled) {
-        this.display
+        console.log({ i, filled });
+        this.display.filter((_, index) => index !== i);
+        this.display.unshift(Array(10).fill(undefined));
       }
     }
-  }
-
-  private moveRowsDown(start: number) {
-    for (let i = start; i >= 0; ){}
   }
 }
 
