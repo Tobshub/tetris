@@ -55,38 +55,9 @@ function GameArea() {
     requestAnimationFrame(update);
   }, []);
 
-  const handleKeyboardInput = (e: KeyboardEvent) => {
-    switch (e.key) {
-      case "ArrowLeft": {
-        board.currentBlock?.shift("left");
-        break;
-      }
-      case "ArrowRight": {
-        board.currentBlock?.shift("right");
-        break;
-      }
-      case "ArrowDown": {
-        board.currentBlock?.drop();
-        break;
-      }
-      case "a":
-      case "A": {
-        board.currentBlock?.rotate(-1);
-        break;
-      }
-      case "d":
-      case "D": {
-        board.currentBlock?.rotate(1);
-        break;
-      }
-      default:
-        break;
-    }
-  };
-
   useEffect(() => {
     const handleKeyboardInputOnFrame = (e: KeyboardEvent) => {
-      requestAnimationFrame(() => handleKeyboardInput(e));
+      requestAnimationFrame(() => handleKeyboardInput(e, board));
     };
     addEventListener("keydown", handleKeyboardInputOnFrame);
     return () => {
@@ -174,6 +145,35 @@ export class Board {
         this.display.unshift(Array(10).fill(undefined));
       }
     }
+  }
+}
+
+function handleKeyboardInput(e: KeyboardEvent, board: Board) {
+  switch (e.key) {
+    case "ArrowLeft": {
+      board.currentBlock?.shift("left");
+      break;
+    }
+    case "ArrowRight": {
+      board.currentBlock?.shift("right");
+      break;
+    }
+    case "ArrowDown": {
+      board.currentBlock?.drop();
+      break;
+    }
+    case "a":
+    case "A": {
+      board.currentBlock?.rotate(-1);
+      break;
+    }
+    case "d":
+    case "D": {
+      board.currentBlock?.rotate(1);
+      break;
+    }
+    default:
+      break;
   }
 }
 
