@@ -46,7 +46,7 @@ function GameArea() {
   const [display, setDisplay] = useState(board.display);
 
   useEffect(() => {
-    board.forceRender = () => setDisplay((state) => [...state]);
+    board.forceRender = () => setDisplay(() => [...board.display]);
   }, []);
 
   const { update } = useGameState(board, { gameSpeed: 8 });
