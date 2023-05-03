@@ -66,6 +66,7 @@ export class Block {
     let safe = true;
     this.squares.every((row, index_y) => {
       row.every((square, index_x) => {
+        if (!square) return true;
         const box = this.display[index_y + this.y + (offset.y ?? 0)]?.at(
           index_x + this.x + (offset.x ?? 0)
         );
@@ -80,8 +81,9 @@ export class Block {
           index_y + this.y + (offset.y ?? 0) >= this.display.length ||
           this.y + (offset.y ?? 0) < 0;
         if (
-          (box && square && !nextBoxPartOfShape) ||
-          (square && (yAxisOutofBounds || xAxisOutofBounds))
+          (box && !nextBoxPartOfShape) ||
+          yAxisOutofBounds ||
+          xAxisOutofBounds
         ) {
           safe = false;
         }
